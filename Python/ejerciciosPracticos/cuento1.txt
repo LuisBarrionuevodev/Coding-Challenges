@@ -1,1 +1,10 @@
-ECHO est� activado.
+Cuento corto:
+El árbol y el río
+
+Había una vez un árbol muy grande y fuerte que vivía junto a un río. Cada mañana, el árbol despertaba con los primeros rayos del sol y veía cómo el río fluía tranquilamente. Los animales del bosque venían a descansar bajo su sombra y a beber agua del río. El árbol estaba feliz de tener tantos amigos.
+
+Un día, una tormenta llegó al bosque. El viento soplaba con fuerza y la lluvia caía torrencialmente. El árbol intentó resistir, pero la corriente del río crecía rápidamente y amenazaba con arrastrarlo. El árbol comenzó a sentir miedo y pensó que perdería todo lo que había construido a lo largo de los años.
+
+Sin embargo, en medio de la tormenta, el río le habló suavemente: "No tengas miedo, querido árbol. Si te dejas llevar por mí, te llevaré a un lugar seguro. Confía en mí, que la tormenta pasará". El árbol, aunque temeroso, decidió confiar en el río y, poco a poco, se dejó arrastrar por la corriente. Al amanecer, la tormenta había cesado y el árbol se encontraba en un nuevo lugar, más hermoso y tranquilo que el anterior.
+
+Desde ese día, el árbol aprendió a confiar más en la naturaleza y a no temer los cambios, sabiendo que todo tiene un propósito, incluso las tormentas.
