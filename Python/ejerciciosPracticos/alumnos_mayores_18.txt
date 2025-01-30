@@ -1,0 +1,9 @@
+Nombre        Numero        Materia Notas
+Lionel Messi         38           Matemáticas: 5
+Cristiano Ronaldo    40           Física: 8
+Zlatan Ibrahimovic   23           Matemáticas: 10
+Thierry Henry        24           Historia: 10
+Paolo Maldini        22           Biología: 1
+Francesco Totti      19           Física: 4
+Kylian Mbappé        25           Historia: 2
+Erling Haaland       23           Biología: 10
