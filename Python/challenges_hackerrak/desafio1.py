@@ -1,6 +1,5 @@
 #!/bin/python3
 
-
 n = int(input("Ingrese un numero"))
 
 def challenge(n):
