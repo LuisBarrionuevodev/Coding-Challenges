@@ -25,3 +25,9 @@ def is_leap(year):
 
 year = int(input())
 print(is_leap(year))  
+select
+city.city,
+country.country,
+from city
+join country on city.country_id = country.country_id
+order by country.country,city.city;
