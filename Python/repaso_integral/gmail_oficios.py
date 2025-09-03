@@ -1,22 +1,45 @@
+import os
+import pickle
 import pandas as pd
+from dotenv import load_dotenv
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
-from google.auth.transport.requests import Request
-import os, pickle, base64, email
 
-# --- Autenticación ---
+# Cargar variables del .env
+load_dotenv()
+
 SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"]
 
+client_id = os.getenv("GOOGLE_CLIENT_ID")
+client_secret = os.getenv("GOOGLE_CLIENT_SECRET")
+redirect_uri = os.getenv("GOOGLE_REDIRECT_URI")
+auth_uri = os.getenv("GOOGLE_AUTH_URI")
+token_uri = os.getenv("GOOGLE_TOKEN_URI")
+
+config = {
+    "installed": {
+        "client_id": client_id,
+        "client_secret": client_secret,
+        "redirect_uris": [redirect_uri],
+        "auth_uri": auth_uri,
+        "token_uri": token_uri,
+    }
+}
+
+# --- Autenticación ---
 if os.path.exists("token.pickle"):
     with open("token.pickle", "rb") as token:
         creds = pickle.load(token)
 else:
-    flow = InstalledAppFlow.from_client_secrets_file("credentials.json", SCOPES)
+    flow = InstalledAppFlow.from_client_config(config, SCOPES)
     creds = flow.run_local_server(port=0)
     with open("token.pickle", "wb") as token:
         pickle.dump(creds, token)
 
 service = build("gmail", "v1", credentials=creds)
+
+print("✅ Autenticación exitosa con Gmail API")
+
 
 # --- Obtener TODOS los mensajes con la etiqueta ---
 query = "label:contestaciones-oficios"
