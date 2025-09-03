@@ -1,73 +1,64 @@
-import os
 import pandas as pd
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
-import pickle
+import os, pickle, base64, email
 
-# ==============================
-# CONFIGURACIÓN
-# ==============================
+# --- Autenticación ---
 SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"]
-LABEL_NAME = "contestaciones oficios"
-OUTPUT_FILE = "mails_oficio.xlsx"
 
-# ==============================
-# AUTENTICACIÓN
-# ==============================
-creds = None
-if os.path.exists("token.pkl"):
-    with open("token.pkl", "rb") as token:
+if os.path.exists("token.pickle"):
+    with open("token.pickle", "rb") as token:
         creds = pickle.load(token)
-
-if not creds or not creds.valid:
-    if creds and creds.expired and creds.refresh_token:
-        creds.refresh(Request())
-    else:
-        flow = InstalledAppFlow.from_client_secrets_file("credentials.json", SCOPES)
-        creds = flow.run_local_server(port=0)
-    with open("token.pkl", "wb") as token:
+else:
+    flow = InstalledAppFlow.from_client_secrets_file("credentials.json", SCOPES)
+    creds = flow.run_local_server(port=0)
+    with open("token.pickle", "wb") as token:
         pickle.dump(creds, token)
 
-# ==============================
-# CONEXIÓN A GMAIL
-# ==============================
 service = build("gmail", "v1", credentials=creds)
 
-# Buscar la etiqueta contestaciones oficios
-results = service.users().labels().list(userId="me").execute()
-labels = results.get("labels", [])
-label_id = None
-for lbl in labels:
-    if lbl["name"].lower() == LABEL_NAME.lower():
-        label_id = lbl["id"]
+# --- Obtener TODOS los mensajes con la etiqueta ---
+query = "label:contestaciones-oficios"
+results = []
+page_token = None
 
-if not label_id:
-    print(f"❌ No encontré la etiqueta '{LABEL_NAME}' en tu Gmail.")
-    exit()
+while True:
+    response = service.users().messages().list(
+        userId="me",
+        q=query,
+        maxResults=100,
+        pageToken=page_token
+    ).execute()
 
-# Buscar mensajes con esa etiqueta
-results = service.users().messages().list(userId="me", labelIds=[label_id]).execute()
-messages = results.get("messages", [])
-total = len(messages)
-print(f"📩 Total de mails encontrados: {total}")
+    if "messages" in response:
+        results.extend(response["messages"])
 
-# ==============================
-# PROCESAR MENSAJES
-# ==============================
-data = []
-for i, msg in enumerate(messages, start=1):
-    print(f"Procesando {i}/{total}...")  # progreso
-    txt = service.users().messages().get(userId="me", id=msg["id"]).execute()
-    headers = txt["payload"]["headers"]
+    page_token = response.get("nextPageToken")
+    if not page_token:
+        break
+
+total = len(results)
+print(f"✅ Total mails encontrados: {total}")
+
+# --- Procesar cada mail ---
+data_list = []
+
+for i, msg in enumerate(results, start=1):
+    m = service.users().messages().get(userId="me", id=msg["id"]).execute()
+    headers = m["payload"]["headers"]
 
     subject = next((h["value"] for h in headers if h["name"] == "Subject"), "")
-    sender = next((h["value"] for h in headers if h["name"] == "From"), "")
-    date = next((h["value"] for h in headers if h["name"] == "Date"), "")
+    from_ = next((h["value"] for h in headers if h["name"] == "From"), "")
+    date_ = next((h["value"] for h in headers if h["name"] == "Date"), "")
 
-    data.append({"Fecha": date, "De": sender, "Asunto": subject})
+    data_list.append({"Asunto": subject, "De": from_, "Fecha": date_})
 
-# Guardar en Excel
-df = pd.DataFrame(data)
-df.to_excel(OUTPUT_FILE, index=False)
-print(f"✅ Exportado a {OUTPUT_FILE}")
+    # --- Progreso en consola ---
+    print(f"📨 Procesado {i}/{total} -> {subject[:50]}...")
+
+# --- Guardar en Excel ---
+df = pd.DataFrame(data_list)
+df.to_excel("contestaciones_oficios.xlsx", index=False)
+
+print("\n📂 Archivo 'contestaciones_oficios.xlsx' generado correctamente.")
